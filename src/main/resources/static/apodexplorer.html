@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NASA APOD Explorer</title>
+   <link rel="stylesheet" href="apodexplorer.css">
+</head>
+<body>
+
+<h1>Pick a Date to explore APOD</h1>
+
+<input type="date" id="dateInput" max="">
+<button onclick="submitDate()">Get APOD</button>
+<button onclick="getPastAPODs()">Past APODs</button>
+<a href="apodexplorer.html"><button>Today's APOD</button></a>
+<div id="spinner" style="display:none;">
+    <img src="https://i.gifer.com/TEcu.gif" alt="Loading..." width="80">
+</div>
+
+<div id="result"></div>
+
+<script>
+
+    document.getElementById("dateInput").max = new Date().toISOString().split("T")[0];
+
+    function getQueryParam(param) {
+        const params = new URLSearchParams(window.location.search);
+        return params.get(param);
+    }
+
+    function submitDate(dateFromLink) {
+        const date = dateFromLink || document.getElementById("dateInput").value;
+        document.getElementById("spinner").style.display = "block";
+        const url = "/api/apod" + (date ? "/" + date : "");
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error(`Network error: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                let html = `<h2>${data.title || "No Title"}</h2>`;
+
+                if ((data.media_type === "image" || 
+                     (!data.media_type && /\.(jpg|jpeg|png|gif)$/i.test(data.url))) && data.url) {
+                    const imgUrl = data.hdurl || data.url;
+                    html += `<img src="${imgUrl}" alt="${data.title || "APOD Image"}" onclick="submitDate('${data.date}')" />`;
+                } else if (data.media_type === "video" || (!data.media_type && data.url)) {
+                    if (/youtube\.com|youtu\.be|vimeo\.com/i.test(data.url)) {
+                        html += `<iframe  src="${data.url}" frameborder="0" allowfullscreen></iframe>`;
+                    } else if (/\.(mp4|webm|ogg)$/i.test(data.url)) {
+                        html += `<video  controls>
+                                    <source src="${data.url}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                 </video>`;
+                    } else {
+                        html += `<p>Video cannot be displayed.</p>`;
+                    }
+                }
+
+                html += `<h2>Explanation:</h2><p id="explanation">${data.explanation || "No explanation available."}</p>`;
+
+                document.getElementById("result").innerHTML = html;
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById("result").innerHTML = `<p style="color:red;">Failed to load APOD.</p>`;
+            })
+            .finally(() => {
+                document.getElementById("spinner").style.display = "none";
+            });
+    }
+
+    function getPastAPODs() {
+        document.getElementById("spinner").style.display = "block";
+        document.getElementById("result").innerHTML = "<h3>Loading...</h3>";
+
+        fetch("/api/apod/past")
+            .then(response => response.json())
+            .then(data => {
+                let html = "<h2>Recent 30 NASA APODs</h2>";
+                html += `<div class="gallery-container">`;
+
+                data.forEach(item => {
+                    html += `
+                        <div class="gallery-card">
+                            <h3 style="font-size:18px;">${item.date}</h3>
+                            <p>${item.title}</p>
+                            ${item.url ? `<img src="${item.url}" alt="${item.title}" onclick="submitDate('${item.date}')" />` : ''}
+                            <a href="apodexplorer.html?date=${item.date}" class="goto">
+                            <button>GO to APOD</button>
+                            </a>
+                        </div>
+                    `;
+                });
+
+                html += "</div>";
+                document.getElementById("result").innerHTML = html;
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById("result").innerHTML = `<p style="color:red;">Failed to load past APODs.</p>`;
+            })
+            .finally(() => {
+                document.getElementById("spinner").style.display = "none";
+            });
+    }
+
+    window.onload = function() {
+        const date = getQueryParam("date");
+        if (date) {
+            document.getElementById("dateInput").value = date;
+            submitDate(date);
+        } else {
+            submitDate();
+        }
+    };
+</script>
+
+</body>
+</html>
