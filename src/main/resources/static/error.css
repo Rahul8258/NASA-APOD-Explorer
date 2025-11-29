@@ -1,17 +1,10 @@
 body {
-	margin: 0;
-	padding: 0;
-	height: 100vh;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	font-family: 'Segoe UI', sans-serif;
-	text-align: center;
-	background: #000814;
-	color: #ffffff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 50px;
+    background-color: #111;
+    color: white;
 }
-
 h1 {
 	font-size: 48px;
 	color: #ffcc00;
