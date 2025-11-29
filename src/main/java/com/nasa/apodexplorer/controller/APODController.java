@@ -36,8 +36,9 @@ public class APODController {
 		LocalDate yesterday = today.minusDays(1);
 		LocalDate pastDays = today.minusDays(30);
 		
-		return service.getPastAPODs(yesrterday,pastDays);
+		return service.getPastAPODs(yesterday,pastDays);
 	}
 }
+
 
 
