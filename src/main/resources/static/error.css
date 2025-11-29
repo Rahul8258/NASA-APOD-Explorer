@@ -12,24 +12,11 @@ body {
 	color: #ffffff;
 }
 
-img {
-	width: 300px;
-	max-width: 80%;
-	margin-bottom: 30px;
-	border-radius: 12px;
-}
-
 h1 {
 	font-size: 48px;
 	color: #ffcc00;
 	text-shadow: 0 0 15px #ffcc00;
 	margin-bottom: 20px;
-}
-
-p {
-	font-size: 18px;
-	line-height: 1.6;
-	margin-bottom: 25px;
 }
 
 a {
