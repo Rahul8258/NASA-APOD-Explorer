@@ -33,8 +33,10 @@ public class APODController {
 	@GetMapping("api/apod/past")
 	public List<APODResponse> getpastAPODs(){
 		LocalDate today = LocalDate.now();
+		LocalDate yesterday = today.minusDays(1);
 		LocalDate pastDays = today.minusDays(30);
 		
 		return service.getPastAPODs(today,pastDays);
 	}
 }
+
